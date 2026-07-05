@@ -1,0 +1,110 @@
+import ClassroomModel from "../model/classrooms";
+
+// Db pool connection
+import { getDBPoolConnection } from "../config/database";
+
+// Helper 
+import checkFields from "../helper/checkFields";
+
+// Constant 
+import { ClassroomCreateDTO, ClassroomUpdated } from "../constant/classrooms";
+import ValidationError from "../error/validationError";
+import NotFoundError from "../error/NotFoundError";
+
+export const createClassrooms = async (classroom: ClassroomCreateDTO) => {
+  checkFields(classroom);
+
+  const pool = getDBPoolConnection();
+  const connection = await pool.getConnection();
+
+  try {
+    const classModel = new ClassroomModel(connection);
+
+    const classExist = await classModel.getClassroomBySectionAndGradeLevel(classroom.section, classroom.gradeLevel);
+
+    if (classExist) {
+      throw new ValidationError(`Section ${classExist.section} already exist in Grade-${classExist.gradeLevel}`);
+    }
+
+    const newClassroom = await classModel.createClassrooms(classroom)
+    return newClassroom;
+  } catch (err) {
+    throw err;
+  } finally {
+    connection.release();
+  }
+}
+
+export const getAllClassrooms = async () => {
+  const pool = getDBPoolConnection();
+  const connection = await pool.getConnection();
+
+  try {
+    const classModel = new ClassroomModel(connection);
+    const classrooms = await classModel.getAllClassrooms();
+    return classrooms;
+  }finally {
+    connection.release(); 
+  }
+}
+
+export const getClassroomById = async (classroomId: number) => {
+  if (!classroomId) {
+    throw new ValidationError("Invalid classroom ID provided");
+  }
+
+  const pool = getDBPoolConnection();
+  const connection = await pool.getConnection();
+
+  try {
+    const classModel = new ClassroomModel(connection);
+    const classroom = await classModel.getClassroomById(classroomId);
+
+    if (classroom === null) {
+      throw new NotFoundError("No classroom found");
+    }
+
+    return classroom;
+  } catch (err) {
+    throw err
+  } finally {
+    connection.release();
+  }
+}
+
+export const updateClassroomById = async (classroomId: number, newClassInfo: ClassroomUpdated) => {
+  if (!classroomId) {
+    throw new ValidationError("Invalid classroom ID provided", 400);
+  }
+
+  if (Object.entries(newClassInfo).length <= 0) {
+    throw new ValidationError("Required atleast one field to update");
+  }
+
+  checkFields(newClassInfo);
+
+  // DB
+  const pool = getDBPoolConnection(); 
+  const connection = await pool.getConnection();
+  try {
+    let classExist: unknown = {}
+
+    const classModel = new ClassroomModel(connection);
+
+    if (newClassInfo.section && newClassInfo.gradeLevel) {
+      classExist = await classModel.getClassroomBySectionAndGradeLevel(newClassInfo.section, newClassInfo.gradeLevel)
+    };
+
+    if (classExist) {
+      throw new ValidationError(`Section ${newClassInfo.section} already exist in Grade-${newClassInfo.gradeLevel}`);
+    }
+
+    const affectedRows = await classModel.updateClassroomsById(classroomId, newClassInfo);
+
+    return affectedRows;
+  } catch (err) {
+    throw err;
+  } finally {
+    connection.release();
+  }
+}
