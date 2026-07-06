@@ -3,6 +3,7 @@ dotenv.config();
 
 import express, { Express } from "express";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 // database connection
 import { checkDBConnection } from './config/database';
@@ -31,6 +32,11 @@ const app: Express = express();
 // middlewaere
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors({
+  origin: "http://localhost:5173",
+  methods: ['GET', 'POST', "PATCH", 'PUT', 'DELETE'],
+  credentials: true
+}))
 
 // use Routes
 app.use('/api', userRouter);

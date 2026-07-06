@@ -11,8 +11,11 @@ import { getDBPoolConnection } from "../config/database";
 // Error handler 
 import ValidationError from "../error/validationError";
 
+import { UserResponseDTO } from "../constant/user";
+
 // Helper
 import getEnv from "../helper/getEnv";
+import successResponse from "../helper/successResponse";
 
 // Main function start 
 
@@ -53,10 +56,12 @@ export default async function LoginAuthentication(req: Request<{}, {}, {email: s
       sameSite: "lax"
     });
 
-    return res.status(200).json({
-      success: true,
-      message: "Login Successful"
-    });
+    const userResponse: UserResponseDTO = {
+      email: user.email,
+      role: user.role
+    };
+
+    return res.status(200).json(successResponse(userResponse, "Login successfull"));
 
   } catch (err) {
     if (err instanceof ValidationError) {
