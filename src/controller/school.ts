@@ -10,12 +10,19 @@ import { School, updateSchoolInfoProps} from "../constant/school";
 
 // Helper
 import successResponse from "../helper/successResponse";
+import { stringNormalize } from "../helper/stringNormalize";
 
 export const createSchoolInfo = async (req: Request<{}, {}, School>, res: Response, next: NextFunction) => {
 
   try {
     const { schoolId, name, district, division, region } = req.body;
-    const result = await createService({ schoolId, name, district, division, region });
+    const result = await createService({
+      schoolId,
+      name: stringNormalize(name),
+      district: stringNormalize(district),
+      division: stringNormalize(division),
+      region: stringNormalize(region)
+    });
     return res.status(201).json(successResponse(result, "School information successfully created"));
   } catch (err) {
     next(err)
@@ -29,10 +36,10 @@ export const updateSchoolinfo = async (req: Request<{schoolOldId: number}, {}, u
 
     const updatedSchoolInfo = {
       ...(schoolId && {schoolId}),
-      ...(name && {name}),
-      ...(division && {division}),
-      ...(district && {district}),
-      ...(region && {region}),
+      ...(name && {name: stringNormalize(name)}),
+      ...(division && {division: stringNormalize(division)}),
+      ...(district && {district: stringNormalize(district)}),
+      ...(region && {region: stringNormalize(region)}),
     }
 
     const result = await updateSchoolService(schoolOldId, updatedSchoolInfo)

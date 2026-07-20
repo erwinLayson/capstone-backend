@@ -23,6 +23,6 @@ export default async function verifyToken(req: Request, res: Response, next: Nex
     req.user = (decoded as User)
     next();
   } catch (err) {
-    next();
+    next(err);
   }
 }

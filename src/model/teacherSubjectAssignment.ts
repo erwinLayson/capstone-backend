@@ -8,12 +8,18 @@ export default class TeacherSubejctAssignMent {
 
   async createTeacherSubjectAssignment(teacherSubject: TSACreateDTO):Promise<number> {
     try {
-      const { subjectId, teacherId } = teacherSubject;
-      const query = "INSERT INTO teacher_subject_assignment(teacherId, subjectId) VALUES(?,?)";
-      const values = [teacherId, subjectId];
+      const values = teacherSubject.teacherId.flatMap(id => [
+        id, teacherSubject.subjectId
+      ]);
+
+      const placeholder = teacherSubject.teacherId.map(() => ("(?, ?)")).join(", ")
+      console.log(placeholder)
+
+      const query = `INSERT INTO teacher_subject_assignment(teacherId, subjectId) VALUES ${placeholder}`;
+
       const [result] = await this.connection.execute<ResultSetHeader>(query, values);
 
-      return result.insertId;
+      return result.affectedRows;
     } catch (err) {
       throw new InternalServerError("Database operation failed", 500, err);
     }

@@ -3,17 +3,25 @@ import { Request, Response, NextFunction } from "express";
 import {
   createTeacher as createService,
   getAllTeacher as getAllService, 
-  updateTeacherById as updateService
+  updateTeacherById as updateService,
+  getTeacherWithNOAdvisory as teacherWithNOadvisoryService
 } from "../service/teacher";
 
 import { TeacherCreateDTO, TeacherUpdateDTO } from "../constant/teacher";
 import successResponse from "../helper/successResponse";
 import ValidationError from "../error/validationError";
+import { stringNormalize } from "../helper/stringNormalize";
 
 export const createTeacher = async (req: Request<{}, {}, TeacherCreateDTO>, res: Response, next: NextFunction) => {
   try {
     const { email, firstname, lastname, middlename, suffix } = req.body;
-    await createService({ email, firstname, middlename, lastname, ...(suffix && { suffix }) })
+    await createService({
+      email: stringNormalize(email),
+      firstname: stringNormalize(firstname),
+      middlename: stringNormalize(middlename),
+      lastname: stringNormalize(lastname),
+      ...(suffix && { suffix: stringNormalize(suffix) })
+    })
     return res.status(201).json(successResponse(null, "Teacher created successfull"));
   } catch (err) {
     next(err);
@@ -28,6 +36,17 @@ export const getAllTeacher = async (req: Request, res: Response, next: NextFunct
     next(err);
   }
 }
+
+
+export const getTeacherWithNoAdvisory = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await teacherWithNOadvisoryService();
+    return res.status(201).json(successResponse(result));
+  } catch (err) {
+    next(err);
+  }
+}
+
 
 export const updateTeacherById = async (req: Request<{teacherId: number}, {}, TeacherUpdateDTO>, res: Response, next: NextFunction) => {
   try {

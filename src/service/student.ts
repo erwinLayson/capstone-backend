@@ -15,7 +15,7 @@ import getEnv from "../helper/getEnv";
 import NotFoundError from "../error/NotFoundError";
 
 // Constant
-import { StudentCreateDTO } from "../constant/student";
+import { Student, StudentCreateDTO, StudentQuery } from "../constant/student";
 import { UserProp, User_role } from "../constant/user";
 
 export const createStudent = async (student: StudentCreateDTO) => {
@@ -71,17 +71,36 @@ export const getStudentById = async (studentId: number) => {
   }
 }
 
-
 // get all student functions
-export const getAllstudents = async () => {
+export const getAllstudents = async (searchQuery: StudentQuery) => {
   const pool = getDBPoolConnection();
   const connection = await pool.getConnection();
 
   try {
     const studentModel = new StudentModel(connection);
-    const students = await studentModel.getAllStudent();
+    const students = await studentModel.getAllStudent(searchQuery);
 
-    return students;
+    const studentArray = []
+
+    for (const student of students) {
+      for (const [field, value] of Object.entries(student)) {
+        if (typeof(value) === "string" && !value.trim()) {
+          (student as Record<string, unknown>)[field] = null
+        }
+      }
+
+      studentArray.push(student);
+    }
+
+    return studentArray.map(s => ({
+      ...s,
+      birthdate: s.birthdate ? new Date(s.birthdate).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "2-digit"
+      }) : s.birthdate
+    }))
+    
   } catch (err) {
     throw err;
   } finally {

@@ -20,3 +20,8 @@ export type StudentCreateDTO = {
   sex: string,
 }
 
+export type StudentQuery = {
+  search: string,
+  pages: number,
+  limit: number,
+}

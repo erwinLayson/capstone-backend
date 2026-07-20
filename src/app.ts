@@ -22,6 +22,9 @@ import classSubjectRouter from "./routes/classSubject";
 import enrollmentRouter from "./routes/enrollments";
 import classStudentRouter from "./routes/classStudent";
 
+// Test Routes
+import TestingRoutes from "./routes/testRoutes";
+
 // Error handler
 import errorHandler from "./middleware/ErrorHandler";
 
@@ -51,6 +54,9 @@ app.use('/api', classTeacherRouter);
 app.use('/api', classSubjectRouter);
 app.use('/api', enrollmentRouter);
 app.use('/api', classStudentRouter);
+
+// test routes
+app.use('/api', TestingRoutes);
 
 // // Error middleware
 app.use(errorHandler);

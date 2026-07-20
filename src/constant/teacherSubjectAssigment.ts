@@ -1,5 +1,5 @@
 export type TSACreateDTO = {
-  teacherId: number,
+  teacherId: number[],
   subjectId: number
 }
 

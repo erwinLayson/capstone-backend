@@ -10,6 +10,7 @@ import {
   updateClassroomById as updateService
  } from "../service/classrooms";
 import successResponse from "../helper/successResponse";
+import { stringNormalize } from "../helper/stringNormalize";
 
 
 export const createClassroom = async (
@@ -20,7 +21,11 @@ export const createClassroom = async (
   const { section, gradeLevel, adviserId } = req.body;
 
   try {
-    await createService({ section, gradeLevel, ...(adviserId && { adviserId }) })
+    await createService({
+      section: stringNormalize(section),
+      gradeLevel,
+      ...(adviserId && { adviserId })
+    })
 
     return res.status(201).json(
       successResponse(null, "Classroom created successfull")
@@ -46,7 +51,7 @@ export const updateClassroomById = async (req: Request<{classroomId: number}, {}
   const updatedClassInfo = {
     ...(classId && {classId}),
     ...(gradeLevel && {gradeLevel}),
-    ...(section && {section}),
+    ...(section && {section: stringNormalize(section)}),
     ...(adviserId && {adviserId}),
   }
 

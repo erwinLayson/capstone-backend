@@ -26,11 +26,15 @@ export default class Classrooms {
     try {
       const query = `
         SELECT
-        id AS classId,
-        section,
-        gradeLevel,
-        adviserId
-        FROM classrooms
+        c.id AS classId,
+        c.section,
+        c.gradeLevel,
+        c.adviserId,
+        CONCAT_WS(" ", t.firstname, t.middlename, t.lastname, t.suffix) AS adviserName
+        FROM classrooms AS c
+        LEFT JOIN teachers AS t
+        ON t.id = c.adviserId
+
       `;
 
       const [result] = await this.connection.execute<RowDataPacket[]>(query);

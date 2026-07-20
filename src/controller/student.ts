@@ -7,11 +7,12 @@ import {Student, StudentCreateDTO } from "../constant/student";
 import {
   createStudent as createService,
   getAllstudents as getAllService,
-  getStudentById as getByIdService
+  getStudentById as getByIdService,
 } from "../service/student";
 
 // Helper
 import successResponse from "../helper/successResponse";
+import { stringNormalize } from "../helper/stringNormalize";
 
 export const createStudent = async (
   req: Request<{}, {}, StudentCreateDTO>,
@@ -34,13 +35,13 @@ export const createStudent = async (
     const studentData = {
       lrn,
       userId,
-      email,
-      firstname, 
-      middlename,
-      lastname,
-      ...(suffix && {suffix}),
+      email: stringNormalize(email),
+      firstname: stringNormalize(firstname), 
+      middlename: stringNormalize(middlename),
+      lastname: stringNormalize(lastname),
+      ...(suffix && {suffix: stringNormalize(suffix)}),
       birthdate,
-      sex
+      sex: stringNormalize(sex)
     }
     
     await createService(studentData)
@@ -65,7 +66,11 @@ export const getStudentById = async (req: Request<{studentId: number}>, res: Res
 // get all student controller
 export const getAllstudents = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await getAllService();
+    const search = (req.params.search as string) ?? "";
+    const pages = Number(req.params.page) || 1
+    const limit = Number(req.params.limit) || 10
+    const result = await getAllService({ search, pages, limit });
+    
     return res.status(200).json(successResponse(result));
   } catch (err) {
     next(err);

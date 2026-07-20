@@ -4,7 +4,7 @@ import { PoolConnection, ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import InternalServerError from "../error/internalServerError";
 
 // constant
-import { Student, StudentCreateDTO} from "../constant/student";
+import { Student, StudentCreateDTO, StudentQuery} from "../constant/student";
 
 export default class Students {
   constructor(private connection: PoolConnection) { }
@@ -50,12 +50,12 @@ export default class Students {
    }
   }
   
-  async getAllStudent():Promise<Student[]> {
+  async getAllStudent({limit, pages, search}: StudentQuery):Promise<Student[]> {
     try {
-      const query = `
+      let query = `
         SELECT
         id AS studentId,
-        lrn
+        lrn,
         email,
         CONCAT_WS(" ", firstname, middlename, lastname, suffix) AS fullname,
         birthdate,
@@ -64,7 +64,34 @@ export default class Students {
         FROM students
       `;
 
-      const [result] = await this.connection.execute<RowDataPacket[]>(query)
+      const values: (string | number)[] = [];
+
+      if (search) {
+        query += `
+          WHERE
+          firstname LIKE ?
+          OR middleame LIKE
+          OR lastname LIKE ?
+          OR id LIKE ?
+          OR lrn LIKE ?
+        `
+
+        values.push(`
+        %${search}%,
+        %${search}%,
+        %${search}%,
+        %${search}%,
+        %${search}%,
+        `);
+      }
+      query += `
+        ORDER BY lastname
+        LIMIT ?
+        OFFSET ?
+      `
+
+      values.push(limit, (pages - 1) * limit);
+      const [result] = await this.connection.execute<RowDataPacket[]>(query, values)
 
       return (result as Student[]);
     } catch (err) {

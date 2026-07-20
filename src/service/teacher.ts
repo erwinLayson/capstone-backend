@@ -76,6 +76,18 @@ export const getAllTeacher = async () => {
   }
 }
 
+export const  getTeacherWithNOAdvisory = async () => {
+  const pool = getDBPoolConnection();
+  const connection = await pool.getConnection();
+  try {
+    const teacherModel = new TeacherModel(connection);
+    const result = await teacherModel.getTeacherWithNoAdvisory();
+    return result
+  } finally {
+    
+  }
+}
+
 
 export const updateTeacherById = async (teacherId: number, newTeacherinfo: TeacherUpdateDTO) => {
 

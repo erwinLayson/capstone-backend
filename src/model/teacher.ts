@@ -40,6 +40,25 @@ export default class Teachers {
     }
   }
 
+  async getTeacherWithNoAdvisory():Promise<{fullname: string, id: number}[]> {
+    try {
+      const query = `
+        SELECT
+        t.id,
+        CONCAT_WS(" ", t.firstname, middlename, lastname, suffix) AS fullname
+        FROM teachers t
+        LEFT JOIN classrooms c
+        ON c.adviserId = t.id
+        WHERE c.adviserId IS NULL
+      `;
+      const [result] = await this.connection.execute<RowDataPacket[]>(query);
+
+      return (result as { fullname: string, id: number }[]);
+    } catch (err) {
+      throw new InternalServerError("Database operation failed", 500, err);
+    }
+  }
+
   async getTeacherById(teacherId: number): Promise<Teacher | null> {
     try {
       const query = `
