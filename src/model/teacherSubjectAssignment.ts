@@ -1,7 +1,7 @@
 import { PoolConnection, ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import InternalServerError from "../error/internalServerError";
 
-import {TSACreateDTO, TSAResponseDTO } from "../constant/teacherSubjectAssigment";
+import {TSACreateDTO, TSAResponseDTO } from "../constant/teacherSubjectAssignment";
 
 export default class TeacherSubejctAssignMent {
   constructor(private connection: PoolConnection) { };

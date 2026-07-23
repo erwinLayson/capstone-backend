@@ -48,40 +48,7 @@ export const getAllSubjects = async () => {
     const subjectModel = new SubjectModel(connection);
     const subjects = await subjectModel.getAllSubject();
 
-    const subjectMap = new Map<number, SubjectsProps>();
-
-    for (const subject of subjects) {
-      if (!subjectMap.has(subject.subjectId)) {
-        subjectMap.set(subject.subjectId, {
-          subjectId: subject.subjectId,
-          subjectCode: subject.subjectCode,
-          subjectName: subject.subjectName,
-          subjectUnit: Number(subject.subjectUnit),
-          teacher: [],
-          class: []
-        })
-      }
-
-      const current = subjectMap.get(subject.subjectId);
-
-      if (subject.teacherId !== null) {
-        current?.teacher.push({
-          teacherId: subject.teacherId,
-          teacherFullname: subject.teacherFullname
-        })
-      }
-
-      if (subject.classId !== null) {
-        current?.class.push({
-        classId: subject.classId,
-        classGradeLevel: subject.classGradeLevel,
-        classSection: subject.classSection
-      })
-      }
-
-    }
-
-    return Array.from(subjectMap.values())
+    return subjects;
   } catch (err) {
     throw err;
   } finally {

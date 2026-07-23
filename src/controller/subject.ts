@@ -19,11 +19,11 @@ export const createSubject = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { subjectName, subjectCode, SubjectUnit} = req.body;
+  const { subjectName, subjectCode, subjectUnit } = req.body;
   const newSubject = {
     subjectName: stringNormalize(subjectName),
     subjectCode: stringNormalize(subjectCode),
-    ...(SubjectUnit && { SubjectUnit })
+    ...(subjectUnit && { subjectUnit })
   }
   try {
     await createService(newSubject);
@@ -34,30 +34,30 @@ export const createSubject = async (
   }
 }
 
-export const updateSubject = async (req: Request<{subjectId: number}, {}, EditSubjectProps>, res: Response, next: NextFunction) => {
+export const updateSubject = async (req: Request<{subjectId: string}, {}, EditSubjectProps>, res: Response, next: NextFunction) => {
   try {
-    const { subjectId } = req.params;
-    const {subjectCode, subjectName, subjectUnit} = req.body
+    const subjectId = Number(req.params.subjectId);
+    const { subjectCode, subjectName, subjectUnit } = req.body
 
     const newSubjectData = {
-      ...(subjectCode && {subjectCode: stringNormalize(subjectCode)}),
-      ...(subjectName && {subjectName: stringNormalize(subjectName)}),
-      ...(subjectUnit && {subjectUnit})
+      ...(subjectCode && { subjectCode: stringNormalize(subjectCode) }),
+      ...(subjectName && { subjectName: stringNormalize(subjectName) }),
+      ...(subjectUnit && { subjectUnit })
     }
 
-    if (subjectId == null || subjectId === undefined) {
-      throw new ValidationError(`Invalid update`)
+    if (isNaN(subjectId)) {
+      throw new ValidationError(`Invalid subject ID`)
     }
 
-    for(const [field, value] of Object.entries(newSubjectData)) {
-      if(value === " ") {
+    for (const [field, value] of Object.entries(newSubjectData)) {
+      if (value === "") {
         throw new ValidationError(`Missing ${field} field are required`)
       }
     }
 
     await updateSubjectById(subjectId, newSubjectData);
-    return res.status(201).json(successResponse(null, `Update successfull`))
-  }catch(err) {
+    return res.status(201).json(successResponse(null, `Update successful`))
+  } catch (err) {
     next(err);
   }
 }

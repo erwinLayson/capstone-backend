@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 // Controller
-import { createTSA} from "../controller/teacherSubejctAssignment";
+import { createTSA} from "../controller/teacherSubjectAssignment";
 
 const router = Router();
 

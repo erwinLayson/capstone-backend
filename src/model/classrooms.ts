@@ -30,12 +30,22 @@ export default class Classrooms {
         c.section,
         c.gradeLevel,
         CONCAT_WS(" ", t.firstname, t.middlename, t.lastname, t.suffix) AS adviserName,
-        t.id AS teacherId
+        t.id AS teacherId,
+        COUNT(DISTINCT cs.subjectId) AS totalSubjects,
+        COUNT(DISTINCT cst.enrollmentId) AS totalStudents
         FROM classrooms c
         LEFT JOIN class_teacher ct
         ON ct.classId = c.id
         LEFT JOIN teachers t
         ON t.id = ct.teacherId
+        LEFT JOIN class_subjects cs
+        ON cs.classId = c.id
+        LEFT JOIN class_students cst
+        ON cst.classId = c.id
+        GROUP BY
+        c.id,
+        c.section,
+        c.gradeLevel
       `;
 
       const [result] = await this.connection.execute<RowDataPacket[]>(query);

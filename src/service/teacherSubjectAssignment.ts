@@ -4,11 +4,7 @@ import { getDBPoolConnection } from "../config/database";
 import TSAModel from "../model/teacherSubjectAssignment";
 
 // Constant
-import { TSACreateDTO } from "../constant/teacherSubjectAssigment";
-
-// Helper
-import checkFields from "../helper/checkFields";
-
+import { TSACreateDTO } from "../constant/teacherSubjectAssignment";
 
 import ValidationError from "../error/validationError";
 

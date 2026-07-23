@@ -7,7 +7,7 @@ export interface TeacherCreateDTO {
 };
 
 export type Teacher = {
-  techerId: number,
+  teacherId: number,
   email: string,
   fullname: string
 }

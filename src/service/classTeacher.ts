@@ -9,9 +9,6 @@ import { ClassTeacherCreateDTO } from "../constant/classTeacher";
 // Helper
 import checkFields from "../helper/checkFields";
 
-// Error handler
-import ValidationError from "../error/validationError";
-
 export const createClassTeacher = async (classTeacher: ClassTeacherCreateDTO) => {
   checkFields(classTeacher);
   

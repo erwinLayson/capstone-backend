@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 // Controller
-import { createSubject, getAllSubjects,getAllSubjectWithAllTeacherAndClass, getAllTeacherWithiutThisSubject, updateSubject } from "../controller/subejct";
+import { createSubject, getAllSubjects,getAllSubjectWithAllTeacherAndClass, getAllTeacherWithiutThisSubject, updateSubject } from "../controller/subject";
 
 const router = Router();
 

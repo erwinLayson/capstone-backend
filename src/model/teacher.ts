@@ -78,7 +78,7 @@ export default class Teachers {
     }
   }
 
-  async updateTeacherById(taecherId: number, newTeacherinfo: TeacherUpdateDTO): Promise<number> {
+  async updateTeacherById(teacherId: number, newTeacherinfo: TeacherUpdateDTO): Promise<number> {
     const updatedFields: (string | number)[] = [];
     const updatedValues: (string | number)[] = [];
 
@@ -91,7 +91,7 @@ export default class Teachers {
     }
     
     try {
-      updatedValues.push(taecherId);
+      updatedValues.push(teacherId);
       const query = `UPDATE teachers SET ${updatedFields.join(", ")} WHERE id = ?`;
       const [result] = await this.connection.execute<ResultSetHeader>(query, updatedValues);
 

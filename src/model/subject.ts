@@ -1,16 +1,16 @@
 import { PoolConnection, ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import InternalServerError from "../error/internalServerError";
 
-import { EditSubjectProps, subjectCreateDTO, subjectResponseDTO, SubjectWithAllTeachersAndClass, techerWithoutThisSubject, allowFields } from "../constant/subject";
+import { EditSubjectProps, subjectCreateDTO, subjectResponseDTO, SubjectWithAllTeachersAndClass, teacherWithoutThisSubject, allowFields, SubjectsProps } from "../constant/subject";
 
 export default class Subjects {
   constructor(private connection: PoolConnection) { }
   
   async createSubject(subject: subjectCreateDTO):Promise<number> {
     try {
-      const {subjectName , subjectCode, SubjectUnit } = subject;
+      const { subjectName, subjectCode, subjectUnit } = subject;
       const query = "INSERT INTO subjects(name, code, unit) VALUES(?,?,?)";
-      const values = [subjectName, subjectCode, SubjectUnit ?? null];
+      const values = [subjectName, subjectCode, subjectUnit ?? null];
 
       const [result] = await this.connection.execute<ResultSetHeader>(query, values);
 
@@ -21,7 +21,7 @@ export default class Subjects {
   }
 
 
-  async getAllSubject():Promise<subjectResponseDTO[]> {
+  async getAllSubject() {
     try {
       const query = `
       SELECT
@@ -29,30 +29,30 @@ export default class Subjects {
       s.name AS subjectName,
       s.unit AS subjectUnit,
       s.code AS subjectCode,
-      c.section AS classSection,
-      c.gradeLevel AS classGradeLevel,
-      c.id AS classId,
-      t.id AS teacherId,
-      CONCAT_WS(" ", t.firstname, t.middlename, t.lastname, t.suffix) AS teacherFullname
+      COUNT(DISTINCT cs.classId) AS totalClassrooms,
+      COUNT(DISTINCT tsa.teacherId) AS totalTeachers
       FROM subjects s
       LEFT JOIN class_subjects cs
       ON cs.subjectId = s.id
-      LEFT JOIN classrooms c
-      ON cs.classId = c.id
-      LEFT JOIN teachers t
-      ON t.id = cs.teacherId
+      LEFT JOIN teacher_subject_assignment tsa
+      ON tsa.subjectId = s.id
+      GROUP BY
+      s.id,
+      s.name,
+      s.unit,
+      s.code
       ORDER BY s.id
       `;
 
       const [result] = await this.connection.execute<RowDataPacket[]>(query);
 
-      return (result as subjectResponseDTO[]);
+      return (result as SubjectsProps[]);
     } catch (err) { 
       throw new InternalServerError("Database operation failed", 500, err);
     }
   };
 
-  async getSubjectByNameAndCode(subejctName: string, subjectCode: string):Promise<subjectResponseDTO | null> {
+  async getSubjectByNameAndCode(subjectName: string, subjectCode: string): Promise<{ name: string, code: string, unit: number } | null> {
     try {
       const query = `
         SELECT
@@ -63,19 +63,19 @@ export default class Subjects {
         WHERE name = ? AND code = ?
       `;
 
-      const [result] = await this.connection.execute<RowDataPacket[]>(query, [subejctName, subjectCode]);
+      const [result] = await this.connection.execute<RowDataPacket[]>(query, [subjectName, subjectCode]);
 
       if (result.length <= 0) {
         return null;
       }
 
-      return (result[0] as subjectResponseDTO)
+      return (result[0] as { name: string, code: string, unit: number })
     } catch (err) {
       throw new InternalServerError("Database operation failed", 500, err);
     }
   }
 
-  async getSubjectByCode(subjectCode: string):Promise<subjectResponseDTO | null> {
+  async getSubjectByCode(subjectCode: string): Promise<{ name: string, code: string, unit: number } | null> {
     try {
       const query = `
         SELECT
@@ -92,7 +92,7 @@ export default class Subjects {
         return null;
       }
 
-      return (result[0] as subjectResponseDTO)
+      return (result[0] as { name: string, code: string, unit: number })
     } catch (err) {
       throw new InternalServerError("Database operation failed", 500, err);
     }
@@ -104,17 +104,12 @@ export default class Subjects {
         SELECT
         s.id AS subjectId,
         t.id AS teacherId,
-        c.id AS classId,
-        c.section AS classSection,
-        c.gradeLevel AS classYearLevel,
         CONCAT_WS(" ", t.firstname, t.middlename, t.lastname, t.suffix) AS teacherFullname
         FROM subjects s
-        INNER JOIN class_subjects cs
-        ON cs.subjectId = s.id
+        INNER JOIN teacher_subject_assignment tsa
+        ON tsa.subjectId = s.id
         INNER JOIN teachers t
-        ON t.id = cs.teacherId
-        INNER JOIN classrooms c
-        ON cs.classId = c.id
+        ON t.id = tsa.teacherId
         WHERE s.id = ?
       `;
       const [result] = await this.connection.execute<RowDataPacket[]>(query, [subjectId ]);
@@ -125,7 +120,7 @@ export default class Subjects {
     }
   }
 
-  async getAllTeacherWithoutThisSubject(subjectId: number):Promise<techerWithoutThisSubject[]> {
+  async getAllTeacherWithoutThisSubject(subjectId: number):Promise<teacherWithoutThisSubject[]> {
     try {
       console.log(subjectId)
       const query = `
@@ -133,13 +128,13 @@ export default class Subjects {
       t.id AS teacherId,
       CONCAT_WS(" ", t.firstname, t.middlename, t.lastname, t.suffix) AS teacherFullname
       FROM teachers t
-      LEFT JOIN class_subjects cs
-      ON cs.teacherId = t.id AND cs.subjectId = ?
-      WHERE cs.teacherId IS NULL
+      LEFT JOIN teacher_subject_assignment tsa
+      ON tsa.teacherId = t.id AND tsa.subjectId = ?
+      WHERE tsa.teacherId IS NULL
       `;
 
       const [result] = await this.connection.execute<RowDataPacket[]>(query, [subjectId]);
-      return result as techerWithoutThisSubject[];
+      return result as teacherWithoutThisSubject[];
     } catch (err) { 
       throw new InternalServerError("Database operation failed", 500, err);
     }

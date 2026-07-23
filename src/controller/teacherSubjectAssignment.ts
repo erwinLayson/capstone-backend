@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 
 // Constant
-import { TSACreateDTO } from "../constant/teacherSubjectAssigment";
+import { TSACreateDTO } from "../constant/teacherSubjectAssignment";
 
 import {
   createTSA as createService
