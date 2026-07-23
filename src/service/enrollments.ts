@@ -12,10 +12,12 @@ export const createEnrollment = async (enrollments: EnrollmentCreateDTO) => {
   try {
     const enrollmentModel = new EnrollmentModel(connection);
 
-    const newEnrollmentId = enrollmentModel.createEnrollments(enrollments);
+    const newEnrollmentId = await enrollmentModel.createEnrollments(enrollments);
 
     return newEnrollmentId;
   } catch (err) {
     throw err;
+  } finally {
+    connection.release();
   }
 }

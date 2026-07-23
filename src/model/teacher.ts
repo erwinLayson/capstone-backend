@@ -44,12 +44,12 @@ export default class Teachers {
     try {
       const query = `
         SELECT
-        t.id,
-        CONCAT_WS(" ", t.firstname, middlename, lastname, suffix) AS fullname
+        t.id AS teacherId,
+        CONCAT_WS(" ", t.firstname, t.middlename, t.lastname, t.suffix) AS fullname
         FROM teachers t
-        LEFT JOIN classrooms c
-        ON c.adviserId = t.id
-        WHERE c.adviserId IS NULL
+        LEFT JOIN class_teacher ct
+        ON t.id = ct.teacherId
+        WHERE ct.teacherId IS NULL
       `;
       const [result] = await this.connection.execute<RowDataPacket[]>(query);
 

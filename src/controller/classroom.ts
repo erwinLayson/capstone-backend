@@ -19,6 +19,7 @@ export const createClassroom = async (
   next: NextFunction
 ) => {
   const { section, gradeLevel, adviserId } = req.body;
+  console.log( req.body)
 
   try {
     await createService({
@@ -51,8 +52,7 @@ export const updateClassroomById = async (req: Request<{classroomId: number}, {}
   const updatedClassInfo = {
     ...(classId && {classId}),
     ...(gradeLevel && {gradeLevel}),
-    ...(section && {section: stringNormalize(section)}),
-    ...(adviserId && {adviserId}),
+    ...(section && {section: stringNormalize(section)})
   }
 
   try {

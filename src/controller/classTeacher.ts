@@ -16,7 +16,7 @@ export const createClassTeacher = async (
 ) => {
   const {classId, teacherId } = req.body;
   try {
-    await createService({ classId, teacherId });
+    await createService({ classId, ...(teacherId !== undefined && { teacherId }) });
 
     return res.status(201).json(successResponse(null, "Teacher assigned successfull"));
   } catch (err) {

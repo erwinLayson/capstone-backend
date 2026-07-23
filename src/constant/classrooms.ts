@@ -16,7 +16,7 @@ export const allowedFields = [
 export type ClassroomCreateDTO = {
   section: string,
   gradeLevel: number,
-  adviserId?: number,
+  adviserId?: number
 }
 
 export type ClassroomUpdated = {

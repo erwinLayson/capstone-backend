@@ -3,14 +3,20 @@ import mysql from "mysql2/promise";
 // Helper code 
 import getEnv from "../helper/getEnv";
 
-export function getDBPoolConnection() {
-  const pool = mysql.createPool({
-    host: getEnv("DB_HOST"),
-    user: getEnv("DB_USER"),
-    password: getEnv("DB_PASSWORD"),
-    database: getEnv("DB_DATABASE") 
-  })
+let pool: mysql.Pool;
 
+export function getDBPoolConnection() {
+  if (!pool) {
+    pool = mysql.createPool({
+      host: getEnv("DB_HOST"),
+      user: getEnv("DB_USER"),
+      password: getEnv("DB_PASSWORD"),
+      database: getEnv("DB_DATABASE"),
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0
+    });
+  }
   return pool;
 }
 

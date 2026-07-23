@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 
 // constant
+import InternalServerError from "../error/internalServerError";
+
 import { UserProp} from "../constant/user";
 
 // Service
@@ -12,13 +14,12 @@ import {
 // Helper
 import successResponse from "../helper/successResponse";
 
-export const createUser = async (req: Request<{}, UserProp>, res: Response, next: NextFunction) => {
+export const createUser = async (req: Request<{}, {}, UserProp>, res: Response, next: NextFunction) => {
   try {
     const result = await createService(req.body);
 
     if (!result) {
-      res.status(500).json("Internal server Error");
-      throw new Error(`Something went wrong`);
+      throw new InternalServerError("Something went wrong");
     }
 
     return res.status(201).json(successResponse(null, "User created successful"));

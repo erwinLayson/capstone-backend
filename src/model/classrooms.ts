@@ -10,9 +10,9 @@ export default class Classrooms {
 
   async createClassrooms(classroom: ClassroomCreateDTO ):Promise<number> {
     try {
-      const {  adviserId, gradeLevel, section} = classroom;
-      const query = "INSERT INTO classrooms(section, gradeLevel, adviserId) VALUES(?,?,?)";
-      const value = [section, gradeLevel, adviserId ?? null]
+      const {  gradeLevel, section} = classroom;
+      const query = "INSERT INTO classrooms(section, gradeLevel) VALUES(?,?)";
+      const value = [section, gradeLevel]
       
       const [result] = await this.connection.execute<ResultSetHeader>(query, value);
 
@@ -29,12 +29,13 @@ export default class Classrooms {
         c.id AS classId,
         c.section,
         c.gradeLevel,
-        c.adviserId,
-        CONCAT_WS(" ", t.firstname, t.middlename, t.lastname, t.suffix) AS adviserName
-        FROM classrooms AS c
-        LEFT JOIN teachers AS t
-        ON t.id = c.adviserId
-
+        CONCAT_WS(" ", t.firstname, t.middlename, t.lastname, t.suffix) AS adviserName,
+        t.id AS teacherId
+        FROM classrooms c
+        LEFT JOIN class_teacher ct
+        ON ct.classId = c.id
+        LEFT JOIN teachers t
+        ON t.id = ct.teacherId
       `;
 
       const [result] = await this.connection.execute<RowDataPacket[]>(query);
@@ -51,8 +52,7 @@ export default class Classrooms {
         SELECT
         id AS classId,
         section,
-        gradeLevel,
-        adviserId
+        gradeLevel
         FROM classrooms
         WHERE id = ?
       `;
@@ -75,8 +75,7 @@ async getClassroomBySectionAndGradeLevel(section: string, gradeLevel: number):Pr
         SELECT
         id AS classId,
         section,
-        gradeLevel,
-        adviserId
+        gradeLevel
         FROM classrooms
         WHERE section = ? AND gradeLevel = ?
       `;

@@ -1,4 +1,5 @@
 import ClassroomModel from "../model/classrooms";
+import ClassTeacher from "../model/classTeacher";
 
 // Db pool connection
 import { getDBPoolConnection } from "../config/database";
@@ -18,7 +19,9 @@ export const createClassrooms = async (classroom: ClassroomCreateDTO) => {
   const connection = await pool.getConnection();
 
   try {
+    await connection.beginTransaction();
     const classModel = new ClassroomModel(connection);
+    const ctModel = new ClassTeacher(connection);
 
     const classExist = await classModel.getClassroomBySectionAndGradeLevel(classroom.section, classroom.gradeLevel);
 
@@ -26,7 +29,11 @@ export const createClassrooms = async (classroom: ClassroomCreateDTO) => {
       throw new ValidationError(`Section ${classExist.section} already exist in Grade-${classExist.gradeLevel}`);
     }
 
-    const newClassroom = await classModel.createClassrooms(classroom)
+    const newClassroom = await classModel.createClassrooms(classroom);
+
+    await ctModel.createClassTeacher({ classId: newClassroom, ...(classroom.adviserId && {teacherId: classroom.adviserId})})
+    await connection.commit();
+
     return newClassroom;
   } catch (err) {
     throw err;

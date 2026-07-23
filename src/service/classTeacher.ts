@@ -25,5 +25,7 @@ export const createClassTeacher = async (classTeacher: ClassTeacherCreateDTO) =>
     return newCtId;
   } catch (err) {
     throw err;
+  } finally {
+    connection.release();
   }
 }

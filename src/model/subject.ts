@@ -27,23 +27,21 @@ export default class Subjects {
       SELECT
       s.id AS subjectId,
       s.name AS subjectName,
-      s.code AS subjectCode,
       s.unit AS subjectUnit,
-      c.id AS classId,
+      s.code AS subjectCode,
       c.section AS classSection,
       c.gradeLevel AS classGradeLevel,
+      c.id AS classId,
       t.id AS teacherId,
       CONCAT_WS(" ", t.firstname, t.middlename, t.lastname, t.suffix) AS teacherFullname
-      FROM
-      subjects s
-      LEFT JOIN teacher_subject_assignment tsa
-      ON tsa.subjectId = s.id
-      LEFT JOIN teachers t
-      ON t.id = tsa.teacherId
+      FROM subjects s
       LEFT JOIN class_subjects cs
-      ON s.id = cs.subjectId
+      ON cs.subjectId = s.id
       LEFT JOIN classrooms c
-      ON c.id = cs.classId
+      ON cs.classId = c.id
+      LEFT JOIN teachers t
+      ON t.id = cs.teacherId
+      ORDER BY s.id
       `;
 
       const [result] = await this.connection.execute<RowDataPacket[]>(query);
@@ -84,7 +82,7 @@ export default class Subjects {
         name,
         code,
         unit
-        FROM subejcts
+        FROM subjects
         WHERE code = ?
       `;
 
@@ -104,23 +102,20 @@ export default class Subjects {
     try {
       const query = `
         SELECT
-        c.id AS classId,
-        t.id AS teacherId,
         s.id AS subjectId,
-        CONCAT_WS(" ", t.firstname, t.middlename, t.lastname, t.suffix) AS teacherFullname,
+        t.id AS teacherId,
+        c.id AS classId,
         c.section AS classSection,
-        c.gradeLevel AS classYearLevel
-        FROM
-        teacher_subject_assignment tsa
-        INNER JOIN subjects s
-        ON s.id = tsa.subjectId
+        c.gradeLevel AS classYearLevel,
+        CONCAT_WS(" ", t.firstname, t.middlename, t.lastname, t.suffix) AS teacherFullname
+        FROM subjects s
+        INNER JOIN class_subjects cs
+        ON cs.subjectId = s.id
         INNER JOIN teachers t
-        ON t.id = tsa.teacherId
-        LEFT JOIN class_subjects cs
-        ON cs.subjectId = tsa.subjectId
-        LEFT JOIN classrooms c
-        ON c.id = cs.classId
-        WHERE tsa.subjectId = ?
+        ON t.id = cs.teacherId
+        INNER JOIN classrooms c
+        ON cs.classId = c.id
+        WHERE s.id = ?
       `;
       const [result] = await this.connection.execute<RowDataPacket[]>(query, [subjectId ]);
 
@@ -136,13 +131,11 @@ export default class Subjects {
       const query = `
       SELECT
       t.id AS teacherId,
-      tsa.SubjectId AS subjectId,
       CONCAT_WS(" ", t.firstname, t.middlename, t.lastname, t.suffix) AS teacherFullname
-      FROM
-      teachers t
-      LEFT JOIN teacher_subject_assignment tsa
-      ON t.id = tsa.teacherId AND tsa.subjectId = ?
-      WHERE tsa.teacherId IS NULL
+      FROM teachers t
+      LEFT JOIN class_subjects cs
+      ON cs.teacherId = t.id AND cs.subjectId = ?
+      WHERE cs.teacherId IS NULL
       `;
 
       const [result] = await this.connection.execute<RowDataPacket[]>(query, [subjectId]);

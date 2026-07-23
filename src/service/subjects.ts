@@ -47,7 +47,7 @@ export const getAllSubjects = async () => {
   try {
     const subjectModel = new SubjectModel(connection);
     const subjects = await subjectModel.getAllSubject();
-    
+
     const subjectMap = new Map<number, SubjectsProps>();
 
     for (const subject of subjects) {

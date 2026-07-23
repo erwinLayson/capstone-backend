@@ -84,7 +84,7 @@ export const  getTeacherWithNOAdvisory = async () => {
     const result = await teacherModel.getTeacherWithNoAdvisory();
     return result
   } finally {
-    
+    connection.release();
   }
 }
 

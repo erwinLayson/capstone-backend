@@ -17,5 +17,7 @@ export const createClassStudent = async (classStudent: ClassStudentDTO) => {
     return newCsId;
   } catch (err) {
     throw err;
+  } finally {
+    connection.release();
   }
 }

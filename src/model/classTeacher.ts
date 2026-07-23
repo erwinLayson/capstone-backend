@@ -12,8 +12,8 @@ export default class ClassTeacher {
   async createClassTeacher(classTeacher: ClassTeacherCreateDTO): Promise<number> {
     const { classId, teacherId } = classTeacher;
     try {
-      const query = "INSERT INTO class_teacher(teacher_assignment_id, classId) VALUES(?,?)";
-      const values = [teacherId, classId];
+      const query = "INSERT INTO class_teacher(teacherId, classId) VALUES(?,?)";
+      const values = [teacherId ?? null, classId];
 
       const [result] = await this.connection.execute<ResultSetHeader>(query, values);
       
@@ -29,9 +29,9 @@ export default class ClassTeacher {
       const query = `
       SELECT
       classId,
-      teacher_assignment_id
+      teacherId
       FROM class_teacher
-      WHERE classId = ? AND teacher_assignment_id = ?`;
+      WHERE classId = ? AND teacherId = ?`;
       const values = [classId, teacherId];
 
       const [result] = await this.connection.execute<RowDataPacket[]>(query, values);

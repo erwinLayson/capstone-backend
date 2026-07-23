@@ -70,19 +70,19 @@ export default class Students {
         query += `
           WHERE
           firstname LIKE ?
-          OR middleame LIKE
+          OR middlename LIKE ?
           OR lastname LIKE ?
           OR id LIKE ?
           OR lrn LIKE ?
         `
 
-        values.push(`
-        %${search}%,
-        %${search}%,
-        %${search}%,
-        %${search}%,
-        %${search}%,
-        `);
+        values.push(
+          `%${search}%`,
+          `%${search}%`,
+          `%${search}%`,
+          `%${search}%`,
+          `%${search}%`,
+        );
       }
       query += `
         ORDER BY lastname

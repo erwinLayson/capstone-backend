@@ -66,10 +66,10 @@ export const getStudentById = async (req: Request<{studentId: number}>, res: Res
 // get all student controller
 export const getAllstudents = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const search = (req.params.search as string) ?? "";
+    const search = typeof req.query.search === "string" ? req.query.search : "";
     const pages = Number(req.params.page) || 1
     const limit = Number(req.params.limit) || 10
-    const result = await getAllService({ search, pages, limit });
+    const result = await getAllService({ search: stringNormalize(search), pages, limit });
     
     return res.status(200).json(successResponse(result));
   } catch (err) {

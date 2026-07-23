@@ -1,6 +1,6 @@
 export type ClassTeacherCreateDTO = {
   classId: number,
-  teacherId: number
+  teacherId?: number
 }
 
 export type ClassTeacherResponseDTO = {
