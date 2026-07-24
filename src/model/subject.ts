@@ -1,7 +1,7 @@
 import { PoolConnection, ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import InternalServerError from "../error/internalServerError";
 
-import { EditSubjectProps, subjectCreateDTO, subjectResponseDTO, SubjectWithAllTeachersAndClass, teacherWithoutThisSubject, allowFields, SubjectsProps } from "../constant/subject";
+import { EditSubjectProps, subjectCreateDTO, Subject, SubjectWithAllTeachersAndClass, teacherWithoutThisSubject, allowFields, SubjectsProps } from "../constant/subject";
 
 export default class Subjects {
   constructor(private connection: PoolConnection) { }
@@ -20,6 +20,27 @@ export default class Subjects {
     }
   }
 
+  async getSubjectByClassroom(classId: number):Promise<Subject[]> {
+    try {
+      const query = `
+        SELECT
+        s.name AS subjectName,
+        s.code AS subjectCode,
+        s.unit AS subjectUnit
+        FROM
+        class_subjects cs
+        INNER JOIN subjects s
+        ON s.id = cs.subjectId
+        WHERE cs.classId = ?
+      `;
+
+      const [result] = await this.connection.execute<RowDataPacket[]>(query, [classId]);
+
+      return result as Subject[]
+    } catch (err) {
+      throw new InternalServerError("Database operation failed");
+    }
+  }
 
   async getAllSubject() {
     try {

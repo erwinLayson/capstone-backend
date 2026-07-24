@@ -7,10 +7,12 @@ import { ClassroomCreateDTO, ClassroomUpdated } from "../constant/classrooms";
 import {
   createClassrooms as createService,
   getAllClassrooms as getAllService,
-  updateClassroomById as updateService
+  updateClassroomById as updateService,
+  getClassroomById as getClassroomByIdService
  } from "../service/classrooms";
 import successResponse from "../helper/successResponse";
 import { stringNormalize } from "../helper/stringNormalize";
+import ValidationError from "../error/validationError";
 
 
 export const createClassroom = async (
@@ -58,6 +60,20 @@ export const updateClassroomById = async (req: Request<{classroomId: number}, {}
   try {
     await updateService(classroomId, updatedClassInfo);
     return res.status(201).json(successResponse(null, "Update successfull"))
+  } catch (err) {
+    next(err);
+  }
+}
+
+export const getClassroomsById = async (req: Request<{ classroomId: number }, {}, ClassroomUpdated>, res: Response, next: NextFunction) => {
+  try {
+    const { classroomId } = req.params;
+    if (!classroomId) {
+      throw new ValidationError(`Invalid Classroom ID`);
+    }
+
+    const classroom = await getClassroomByIdService(classroomId);
+    return res.status(200).json(successResponse(classroom))
   } catch (err) {
     next(err);
   }

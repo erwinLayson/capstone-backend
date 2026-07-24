@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 23, 2026 at 03:35 AM
+-- Generation Time: Jul 23, 2026 at 04:11 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -75,7 +75,8 @@ CREATE TABLE `class_subjects` (
 --
 
 INSERT INTO `class_subjects` (`id`, `classId`, `teacherId`, `subjectId`) VALUES
-(8, 9, 3, 1);
+(8, 9, 3, 1),
+(9, 13, 4, 2);
 
 -- --------------------------------------------------------
 
@@ -108,7 +109,8 @@ CREATE TABLE `enrollments` (
   `id` bigint(20) NOT NULL,
   `dateEnrolled` date NOT NULL DEFAULT curdate(),
   `classId` int(11) NOT NULL,
-  `schoolYearId` int(11) NOT NULL
+  `schoolYearId` int(11) NOT NULL,
+  `studentId` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -180,6 +182,13 @@ CREATE TABLE `students` (
   `updated_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `students`
+--
+
+INSERT INTO `students` (`id`, `userId`, `email`, `lrn`, `firstname`, `middlename`, `lastname`, `suffix`, `birthdate`, `sex`, `created_at`, `updated_at`) VALUES
+(28, 55, 'erwinlayson@sksu.edu.ph', '9089212312', 'erwin', 'balboa', 'layson', NULL, '2026-07-23', 'male', '2026-07-23 15:00:21', NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -198,8 +207,8 @@ CREATE TABLE `subjects` (
 --
 
 INSERT INTO `subjects` (`id`, `name`, `code`, `unit`) VALUES
-(1, 'Mathematics', 'MT', 111),
-(2, 'Science and health', 'SCI', 3),
+(1, 'mathematics', 'mt1', 111),
+(2, 'science and health', 'sci2', 3),
 (3, 'filino', 'fi', 3),
 (4, 'English', 'eng', 3),
 (5, 'English', 'ENGENG', 2),
@@ -286,7 +295,8 @@ INSERT INTO `teacher_subject_assignment` (`id`, `teacherId`, `subjectId`) VALUES
 (44, 3, 13),
 (45, 4, 13),
 (46, 5, 13),
-(47, 3, 14);
+(47, 3, 14),
+(48, 5, 14);
 
 -- --------------------------------------------------------
 
@@ -333,7 +343,8 @@ INSERT INTO `users` (`id`, `email`, `password`, `role`, `created_at`, `updated_a
 (51, 'sussersss@gmil.com', '$2b$10$t2jdUfFTawnypWOiHLCZc.QQx27KNqiC7Jg/s7QBl4cymdsnGkF4W', 'student', '2026-07-06 10:31:39', NULL),
 (52, 'sussersss@ssgmil.com', '$2b$10$7FkMAh4vhkZqV9DS9EbAROgoPOSjo6/L.VXybzDnH6SijAZ87ZwF.', 'student', '2026-07-06 13:20:19', NULL),
 (53, 'Aguinaldo@1.com', '$2b$10$ZtRjNedW6c9ENW7LYkD3IOaYgIHAgdcu1F8y4uKzIfF6locvbUAJy', 'teacher', '2026-07-08 01:04:44', NULL),
-(54, 'Aguinaldo@14444', '$2b$10$xxGq0lm9jVdVL5G/uUl4C.5DvNgyVmifVmCMm57Bc2rAHJnoYhC8.', 'teacher', '2026-07-13 04:24:29', NULL);
+(54, 'Aguinaldo@14444', '$2b$10$xxGq0lm9jVdVL5G/uUl4C.5DvNgyVmifVmCMm57Bc2rAHJnoYhC8.', 'teacher', '2026-07-13 04:24:29', NULL),
+(55, 'erwinlayson@sksu.edu.ph', '$2b$10$pBeKnxzLeGzZS.82eSHzcu3/hrhik5tvKeABw0rxiXnXS4xcRZVDu', 'student', '2026-07-23 06:00:21', NULL);
 
 --
 -- Indexes for dumped tables
@@ -375,7 +386,8 @@ ALTER TABLE `class_teacher`
 -- Indexes for table `enrollments`
 --
 ALTER TABLE `enrollments`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_enrollment_studentId` (`studentId`);
 
 --
 -- Indexes for table `enrollment_details`
@@ -451,7 +463,7 @@ ALTER TABLE `class_students`
 -- AUTO_INCREMENT for table `class_subjects`
 --
 ALTER TABLE `class_subjects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `class_teacher`
@@ -487,7 +499,7 @@ ALTER TABLE `school_info`
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `subjects`
@@ -505,13 +517,13 @@ ALTER TABLE `teachers`
 -- AUTO_INCREMENT for table `teacher_subject_assignment`
 --
 ALTER TABLE `teacher_subject_assignment`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
 
 --
 -- Constraints for dumped tables
@@ -539,6 +551,12 @@ ALTER TABLE `class_teacher`
   ADD CONSTRAINT `class_teacher_ibfk_2` FOREIGN KEY (`teacherId`) REFERENCES `teachers` (`id`) ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_class_teacher2` FOREIGN KEY (`classId`) REFERENCES `classrooms` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_teacherId_1` FOREIGN KEY (`teacherId`) REFERENCES `teachers` (`id`);
+
+--
+-- Constraints for table `enrollments`
+--
+ALTER TABLE `enrollments`
+  ADD CONSTRAINT `fk_enrollment_studentId` FOREIGN KEY (`studentId`) REFERENCES `students` (`id`);
 
 --
 -- Constraints for table `students`

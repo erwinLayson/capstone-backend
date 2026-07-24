@@ -3,7 +3,6 @@ import { PoolConnection, ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import InternalServerError from "../error/internalServerError";
 
 import { ClassroomCreateDTO, Classroom, ClassroomUpdated, allowedFields } from "../constant/classrooms";
-import ValidationError from "../error/validationError";
 
 export default class Classrooms {
   constructor(private connection: PoolConnection) { };
@@ -61,8 +60,8 @@ export default class Classrooms {
       const query = `
         SELECT
         id AS classId,
-        section,
-        gradeLevel
+        section AS classSection,
+        gradeLevel AS classGradeLevel
         FROM classrooms
         WHERE id = ?
       `;

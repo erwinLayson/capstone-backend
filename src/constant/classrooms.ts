@@ -1,9 +1,17 @@
-export type Classroom = {
+export type Classroom= {
   classId?: number,
   adviserId: number,
   section: string,
   gradeLevel: number,
   adviserName: string
+}
+
+export type SelectedClassroom = {
+  classId: number,
+  section: string,  
+  gradeLevel: number,
+  students: [],
+  subjects: []
 }
 
 export const allowedFields = [

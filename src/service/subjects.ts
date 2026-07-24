@@ -4,6 +4,7 @@ import SubjectModel from "../model/subject";
 import {subjectCreateDTO, EditSubjectProps,SubjectsProps } from "../constant/subject";
 import checkFields from "../helper/checkFields";
 import ValidationError from "../error/validationError";
+import { PoolConnection } from "mysql2/promise";
 
 export const createSubject = async (subject: subjectCreateDTO) => {
   checkFields(subject);
@@ -78,5 +79,21 @@ export const getTeacherWithouThisSubject = async (subjectId: number) => {
     return result;
   } finally {
     connection.release();
+  }
+}
+
+
+export const getSubjectByClassroom = async (classId: number, existingConnection?: PoolConnection) => {
+  const pool = getDBPoolConnection();
+  const connection = existingConnection ?? await pool.getConnection();
+  const ownConnection = !existingConnection;
+  try {
+    const subjectModel = new SubjectModel(connection);
+    const result = subjectModel.getSubjectByClassroom(classId);
+    return result;
+  } finally {
+    if (ownConnection) {
+      connection.release();
+    }
   }
 }

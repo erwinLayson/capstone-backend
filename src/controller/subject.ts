@@ -8,7 +8,8 @@ import {
   getAllSubjects as getAllService,
   getSubjectWithAllTeacherAndClass,
   getTeacherWithouThisSubject,
-  updateSubjectById
+  updateSubjectById,
+  getSubjectByClassroom
 } from "../service/subjects";
 import successResponse from "../helper/successResponse";
 import ValidationError from "../error/validationError";
@@ -90,6 +91,18 @@ export const getAllTeacherWithiutThisSubject = async (req: Request<{subjectId: n
   if(!subjectId) throw new ValidationError("Invalid subject Id")
   try {
     const result = await getTeacherWithouThisSubject(subjectId);
+    return res.status(200).json(successResponse(result));
+  } catch (err) {
+    next(err);
+  }
+}
+
+export const getSubjectByClassroomId = async (req: Request<{classId: number}>, res: Response, next: NextFunction) => {
+  const { classId } = req.params;
+
+  if(!classId) throw new ValidationError("Invalid classroom Id")
+  try {
+    const result = await getSubjectByClassroom(classId);
     return res.status(200).json(successResponse(result));
   } catch (err) {
     next(err);

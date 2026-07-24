@@ -16,6 +16,12 @@ export type SubjectsProps = {
   }[]
 }
 
+export type Subject = {
+  subjectName: string,
+  subjectCode: string,
+  subjectUnit?: number
+}
+
 export type subjectCreateDTO = {
   subjectName: string,
   subjectCode: string,

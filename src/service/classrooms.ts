@@ -4,11 +4,17 @@ import ClassTeacher from "../model/classTeacher";
 // Db pool connection
 import { getDBPoolConnection } from "../config/database";
 
+// Service
+import { getStudentEnrolledByClassId } from "./enrollments";
+import {getSubjectByClassroom} from "./subjects"
+
 // Helper 
 import checkFields from "../helper/checkFields";
 
 // Constant 
 import { ClassroomCreateDTO, ClassroomUpdated } from "../constant/classrooms";
+
+// Error handler
 import ValidationError from "../error/validationError";
 import NotFoundError from "../error/NotFoundError";
 
@@ -65,13 +71,20 @@ export const getClassroomById = async (classroomId: number) => {
 
   try {
     const classModel = new ClassroomModel(connection);
-    const classroom = await classModel.getClassroomById(classroomId);
+    const classrooms = await classModel.getClassroomById(classroomId);
+    const student = await getStudentEnrolledByClassId(classroomId, connection);
+    const subject = await getSubjectByClassroom(classroomId, connection);
 
-    if (classroom === null) {
+    if (classrooms === null) {
       throw new NotFoundError("No classroom found");
     }
+    const classroomArr = {
+      ...classrooms,
+      students: [...student],
+      subjects: [...subject]
+    }
 
-    return classroom;
+    return classroomArr;
   } catch (err) {
     throw err
   } finally {
