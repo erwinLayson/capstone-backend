@@ -6,7 +6,6 @@ import { getDBPoolConnection } from "../config/database";
 
 // Service
 import { getStudentEnrolledByClassId } from "./enrollments";
-import {getSubjectByClassroom} from "./subjects"
 
 // Helper 
 import checkFields from "../helper/checkFields";
@@ -72,16 +71,14 @@ export const getClassroomById = async (classroomId: number) => {
   try {
     const classModel = new ClassroomModel(connection);
     const classrooms = await classModel.getClassroomById(classroomId);
-    const student = await getStudentEnrolledByClassId(classroomId, connection);
-    const subject = await getSubjectByClassroom(classroomId, connection);
+    const studentsAndSubjects = await getStudentEnrolledByClassId(classroomId, connection);
 
     if (classrooms === null) {
       throw new NotFoundError("No classroom found");
     }
     const classroomArr = {
       ...classrooms,
-      students: [...student],
-      subjects: [...subject]
+      ...studentsAndSubjects
     }
 
     return classroomArr;

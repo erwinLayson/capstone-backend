@@ -78,3 +78,26 @@ export const getClassroomsById = async (req: Request<{ classroomId: number }, {}
     next(err);
   }
 }
+
+
+export const getClassroomStudents = async (req: Request<{ classroomId: number }, {}, ClassroomUpdated>, res: Response, next: NextFunction) => {
+  try {
+    const { classroomId } = req.params;
+    if (!classroomId) {
+      throw new ValidationError(`Invalid Classroom ID`);
+    }
+
+    const classroom = await getClassroomByIdService(classroomId);
+    const classroomStudents = classroom.students
+    const classroomSubjects = classroom.subjects;
+    
+    const classroomArr = {
+      students: classroomStudents,
+      subjects: classroomSubjects
+    }
+    
+    return res.status(200).json(successResponse(classroomArr))
+  } catch (err) {
+    next(err);
+  }
+}
